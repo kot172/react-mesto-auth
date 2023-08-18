@@ -25,7 +25,6 @@ function App() {
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
   const [isSend, setIsSend] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   //стейт контекста
   const [currentUser, setCurrentUser] = useState({});
@@ -104,7 +103,7 @@ function App() {
   //универсальная функция, принимающая функцию запроса
   function handleSubmit(request) {
     // изменяем текст кнопки до вызова запроса
-    setIsLoading(true);
+    setIsSend(true);
     request()
       // закрывать попап нужно только в `then`
       .then(closeAllPopups)
@@ -112,7 +111,7 @@ function App() {
       // console.error обычно используется для логирования ошибок, если никакой другой обработки ошибки нет
       .catch(console.error)
       // в каждом запросе в `finally` нужно возвращать обратно начальный текст кнопки
-      .finally(() => setIsLoading(false));
+      .finally(() => setIsSend(false));
   }
 
   //Удаление карточки
@@ -149,7 +148,6 @@ function App() {
         .then((dataUser) => {
           setCurrentUser(dataUser);
         })
-        .catch(console.error);
     }
     handleSubmit(makeRequest);
   }
@@ -162,7 +160,6 @@ function App() {
         .then((res) => {
           setCards([res, ...cards]);
         })
-        .catch(console.error);
     }
     handleSubmit(makeRequest);
   }
@@ -206,7 +203,6 @@ function App() {
         console.error(console.error("Ошибка при авторизации пользователя"));
       });
   }
-
   function handleLogout() {
     setLoggedIn(false);
     localStorage.removeItem("jwt");

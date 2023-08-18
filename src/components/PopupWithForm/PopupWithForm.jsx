@@ -30,11 +30,7 @@ export default function PopupWithForm({
           onClick={onClose}
         />
         <h2 className="popup__heading">{title}</h2>
-        <form
-          name="editProfileUser"
-          className="popup__info"
-          onSubmit={onSubmit}
-        >
+        <form name={name} className="popup__info" onSubmit={onSubmit}>
           {children}
           <button
             type="submit"
