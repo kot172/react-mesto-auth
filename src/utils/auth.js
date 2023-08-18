@@ -12,8 +12,7 @@ export const register = (email, password) => {
     .then(checkResponse)
     .then((res) => {
       return res;
-    })
-    .catch((err) => console.log(err));
+    });
 };
 
 export const login = (email, password) => {
@@ -33,8 +32,7 @@ export const login = (email, password) => {
       } else {
         return;
       }
-    })
-    .catch((err) => console.log(err));
+    });
 };
 
 export const getContent = (token) => {
@@ -53,6 +51,6 @@ const checkResponse = (res) => {
   if (res.ok) {
     return res.json();
   } else {
-    return Promise.reject;
+    return Promise.reject(`Ошибка ${res.status}`);
   }
 };

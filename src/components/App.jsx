@@ -14,7 +14,7 @@ import AddPlacePopup from "./AddPlacePopup/AddPlacePopup.jsx";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { register, login, getContent } from "../utils/auth";
 import ProtectedRouteElement from "./ProtectedRoute/ProtectedRoute.js";
-import InfoTooltip from "./InfoTooltip/InfoTooltip.js"
+import InfoTooltip from "./InfoTooltip/InfoTooltip.js";
 
 function App() {
   //стейты попапов
@@ -25,6 +25,7 @@ function App() {
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
   const [isSend, setIsSend] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   //стейт контекста
   const [currentUser, setCurrentUser] = useState({});
@@ -100,6 +101,21 @@ function App() {
       .catch((err) => console.log(`Что-то пошло не так: ${err}`));
   }, []);
 
+  //универсальная функция, принимающая функцию запроса
+  function handleSubmit(request) {
+    // изменяем текст кнопки до вызова запроса
+    setIsLoading(true);
+    request()
+      // закрывать попап нужно только в `then`
+      .then(closeAllPopups)
+      // в каждом запросе нужно ловить ошибку
+      // console.error обычно используется для логирования ошибок, если никакой другой обработки ошибки нет
+      .catch(console.error)
+      // в каждом запросе в `finally` нужно возвращать обратно начальный текст кнопки
+      .finally(() => setIsLoading(false));
+  }
+
+  //Удаление карточки
   function handleDeleteCard(evt) {
     evt.preventDefault();
     setIsSend(true);
@@ -117,47 +133,39 @@ function App() {
       .finally(() => setIsSend(false));
   }
 
-  // редактирование профиля
-  function handleUpdateUser(dataUser, reset) {
-    setIsSend(true);
-    api
-      .editUserInfo(dataUser)
-      .then((res) => {
-        setCurrentUser(res);
-        closeAllPopups();
-        reset();
-      })
-      .catch((err) => console.log(`Ошибка редактирования профиля ${err}`))
-      .finally(() => setIsSend(false));
+  //Обновить данные профиля
+  function handleUpdateUser(inputValues) {
+    function makeRequest() {
+      return api.editUserInfo(inputValues).then(setCurrentUser);
+    }
+    handleSubmit(makeRequest);
   }
 
   // редактирование аватарки
-  function handleUpdateAvatar(dataUser, reset) {
-    setIsSend(true);
-    api
-      .editUserAvatar(dataUser.avatar)
-      .then((res) => {
-        setCurrentUser(res);
-        closeAllPopups();
-        reset();
-      })
-      .catch((err) => console.log(`Ошибка редактирования аватара ${err}`))
-      .finally(() => setIsSend(false));
+  function handleUpdateAvatar(inputValue) {
+    function makeRequest() {
+      return api
+        .editUserAvatar(inputValue.avatar)
+        .then((dataUser) => {
+          setCurrentUser(dataUser);
+        })
+        .catch(console.error);
+    }
+    handleSubmit(makeRequest);
   }
 
-  function handleAddPlaceSubmit(dataCard, reset) {
-    setIsSend(true);
-    api
-      .addCard(dataCard)
-      .then((res) => {
-        setCards([res, ...cards]);
-        closeAllPopups();
-        reset();
-      })
-      .catch((err) => console.log(`Ошибка добавлении карточки ${err}`))
-      .finally(() => setIsSend(false));
+  //добавление карточки
+  function handleAddPlaceSubmit(inputValue) {
+    function makeRequest() {
+      return api
+        .addCard(inputValue)
+        .then((res) => {
+          setCards([res, ...cards]);
+        })
+        .catch(console.error);
+    }
+    handleSubmit(makeRequest);
   }
-
 
   //Обработка запроса на регистрацию
   function handleRegister(email, password) {
@@ -165,18 +173,16 @@ function App() {
       .then((res) => {
         if (res) {
           setIsRegister(true);
-          infoTooltipPopupOpen();
-          // navigatе("/signin", { replace: true });
+          navigatе("/signin", { replace: true });
         } else {
-          infoTooltipPopupOpen();
           setIsRegister(false);
         }
       })
       .catch(() => {
-        infoTooltipPopupOpen();
         setIsRegister(false);
-        console.error();
-      });
+        console.error("Ошибка при регистрации пользователя");
+      })
+      .finally(() => infoTooltipPopupOpen());
   }
 
   function handleLoggedIn() {
@@ -197,10 +203,9 @@ function App() {
       .catch(() => {
         setLoggedIn(false);
         infoTooltipPopupOpen();
-        console.error();
+        console.error(console.error("Ошибка при авторизации пользователя"));
       });
   }
-
 
   function handleLogout() {
     setLoggedIn(false);
@@ -233,32 +238,23 @@ function App() {
           <Route
             name="signin"
             path="/signin"
-            element={
-              <>
-                <Login login={handleLogin} />
-              </>
-            }
+            element={<Login login={handleLogin} />}
           />
 
           <Route
             name="signup"
             path="/signup"
-            element={
-              <>
-                <Register register={handleRegister} />
-              </>
-            }
+            element={<Register register={handleRegister} />}
           />
 
           <Route path="*" element={<navigatе to="/" replace />} />
-
         </Routes>
 
-<InfoTooltip 
-isConfirmed={isRegister}
-isOpen={isInfoTooltipOpen}
-onClose={closeAllPopups}
-/>
+        <InfoTooltip
+          isConfirmed={isRegister}
+          isOpen={isInfoTooltipOpen}
+          onClose={closeAllPopups}
+        />
 
         <EditProfilePopup
           onUpdateUser={handleUpdateUser}

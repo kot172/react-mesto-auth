@@ -21,7 +21,7 @@ export default function Header({ email, onLogout }) {
         {location.pathname === "/signup" && (
           <>
             <Link className="header__logout" to="/signup" onClick={onLogout}>
-              Регистрация
+              Зарегистрироваться
             </Link>
           </>
         )}
@@ -41,8 +41,8 @@ export default function Header({ email, onLogout }) {
         )}
         {location.pathname === "/signin" && (
           <>
-            <Link className="header__logout" to="/signin" onClick={onLogout}>
-              Войти
+            <Link className="header__logout" to="/signup" onClick={onLogout}>
+              Регистрация
             </Link>
           </>
         )}
@@ -50,7 +50,11 @@ export default function Header({ email, onLogout }) {
       {location.pathname === "/" && (
         <>
           <div className="header__burger" onClick={handleOpenMenu}>
-            {menu ? <img src={close} /> : <img src={burger} />}
+            {menu ? (
+              <img src={close} alt="закрыть меню" />
+            ) : (
+              <img src={burger} alt="открыть меню" />
+            )}
           </div>
         </>
       )}

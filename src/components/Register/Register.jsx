@@ -37,8 +37,8 @@ export default function Register({ register }) {
             value={formValue.password}
             placeholder="Пароль"
           ></input>
-          <button className="auth__btn" onSubmit={handleSubmit} type="submit">
-            Войти
+          <button className="auth__btn" type="submit">
+            Зарегистрироваться
           </button>
           <p className="auth__signin">
             Уже зарегистрированы?{" "}

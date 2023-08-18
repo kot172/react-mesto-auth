@@ -11,7 +11,11 @@ function InfoTooltip({ isOpen, onClose, isConfirmed }) {
           type="button"
           onClick={onClose}
         />
-        <img className="popup__tooltip" src={isConfirmed ? onreg : offreg} />
+        <img
+          className="popup__tooltip"
+          src={isConfirmed ? onreg : offreg}
+          alt={isConfirmed ? "Галочка" : "Крестик"}
+        />
         <h2 className="popup__tootltip-header">
           {isConfirmed
             ? "Вы успешно зарегистрировались"
